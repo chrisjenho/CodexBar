@@ -317,6 +317,11 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>CFBundleVersion</key><string>${BUILD_NUMBER}</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>LSUIElement</key><true/>
+    <!-- Local fork only: the sub2api fetcher has a code-level allowlist for one HTTP origin. -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key><true/>
+    </dict>
     <key>CFBundleIconFile</key><string>Icon</string>
     <key>NSHumanReadableCopyright</key><string>© 2026 Peter Steinberger. MIT License.</string>
     <key>SUFeedURL</key><string>${FEED_URL}</string>

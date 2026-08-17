@@ -38,9 +38,9 @@ struct Sub2APIProviderImplementation: ProviderImplementation {
             ProviderSettingsFieldDescriptor(
                 id: "sub2api-base-url",
                 title: "Base URL",
-                subtitle: "Base URL of your sub2api instance. HTTPS is required except for local loopback testing.",
+                subtitle: "HTTPS is required, except for loopback and this fork's explicit http://64.181.225.158:8080 override. HTTP exposes the bearer key.",
                 kind: .plain,
-                placeholder: "https://sub2api.example.com",
+                placeholder: "https://sub2api.example.com or http://64.181.225.158:8080",
                 binding: context.providerConfigBinding(.endpoint),
                 actions: [],
                 isVisible: nil,

@@ -118,6 +118,23 @@ struct Sub2APIPluginGoldenTests {
     }
 
     @Test
+    func `local fork permits the explicitly trusted public HTTP endpoint`() async throws {
+        let recorder = Sub2APIRequestRecorder()
+        _ = try await Self.fetch(
+            #"{"mode":"unrestricted","usage":{"today":{"requests":1,"total_tokens":2},"total":{"requests":3,"total_tokens":4}}}"#,
+            baseURL: "http://64.181.225.158:8080",
+            recorder: recorder)
+
+        let requests = await recorder.requests
+        let request = try #require(requests.first)
+        #expect(request.url?.scheme == "http")
+        #expect(request.url?.host == "64.181.225.158")
+        #expect(request.url?.port == 8080)
+        #expect(request.url?.path == "/v1/usage")
+        #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer fixture-key")
+    }
+
+    @Test
     func `invalid key parse and network failures keep classifications`() async throws {
         await Self.expectFailure(.authenticationExpired) {
             try await Self.fetch(#"{"mode":"unrestricted","isValid":false}"#)

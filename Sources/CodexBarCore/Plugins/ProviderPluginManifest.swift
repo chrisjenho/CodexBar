@@ -55,6 +55,8 @@ public enum ProviderPluginEndpoint: Equatable, Hashable, Sendable {
         case https
         case httpsOrLoopbackHTTP = "https-or-loopback-http"
         case httpsOrPrivateNetworkHTTP = "https-or-private-network-http"
+        /// Local-fork escape hatch: only the bundled sub2api plugin may use the one trusted HTTP origin.
+        case httpsOrTrustedSub2APIHTTP = "https-or-trusted-sub2api-http"
     }
 
     case fixed(String)
@@ -128,6 +130,12 @@ public struct ProviderPluginManifest: Sendable {
             {
                 throw ProviderPluginError.invalidManifest(
                     "private-network HTTP is not allowed for bundled provider '\(id.rawValue)'")
+            }
+            guard policy != .httpsOrTrustedSub2APIHTTP ||
+                (!allowsDynamicID && id.firstPartyProvider == .sub2api)
+            else {
+                throw ProviderPluginError.invalidManifest(
+                    "trusted public HTTP is reserved for this fork's bundled sub2api provider")
             }
             endpoints.insert(.setting(key: key, policy: policy))
         }
@@ -391,13 +399,23 @@ enum ProviderPluginOrigin {
 
     static func normalizedOrigin(of url: URL, policy: ProviderPluginEndpoint.Policy) throws -> String {
         let validator = ProviderEndpointOverrideValidator()
-        let validated: URL? = switch policy {
+        let validated: URL?
+        switch policy {
         case .https:
-            validator.validatedURL(url.absoluteString)
+            validated = validator.validatedURL(url.absoluteString)
         case .httpsOrLoopbackHTTP:
-            validator.validatedURLAllowingLoopbackHTTP(url.absoluteString)
+            validated = validator.validatedURLAllowingLoopbackHTTP(url.absoluteString)
         case .httpsOrPrivateNetworkHTTP:
-            validator.validatedURLAllowingPrivateNetworkHTTP(url.absoluteString)
+            validated = validator.validatedURLAllowingPrivateNetworkHTTP(url.absoluteString)
+        case .httpsOrTrustedSub2APIHTTP:
+            if url.scheme?.lowercased() == "http" {
+                guard Sub2APISettingsReader.isTrustedInsecureHTTPOrigin(url) else {
+                    throw ProviderPluginError.networkPolicy("URL does not satisfy the trusted sub2api HTTP exception")
+                }
+                validated = url
+            } else {
+                validated = validator.validatedURL(url.absoluteString)
+            }
         }
         guard let validated, validated.fragment == nil, validated.user == nil, validated.password == nil else {
             throw ProviderPluginError.networkPolicy("URL does not satisfy the declared endpoint policy")
