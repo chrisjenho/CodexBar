@@ -1,7 +1,8 @@
 defineProvider({
   id: "sub2api",
   name: "sub2api",
-  endpoints: [{ setting: "SUB2API_BASE_URL", policy: "https-or-loopback-http" }],
+  // This local fork permits only http://64.181.225.158:8080 in addition to HTTPS/loopback.
+  endpoints: [{ setting: "SUB2API_BASE_URL", policy: "https-or-trusted-sub2api-http" }],
   auth: { type: "bearer", secret: "SUB2API_API_KEY" },
   settings: [
     { key: "SUB2API_API_KEY", title: "API key", type: "secure" },

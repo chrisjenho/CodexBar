@@ -20,6 +20,10 @@ send model requests, read prompts, or require a dashboard JWT.
 Configure the deployment URL in Settings → Providers → sub2api. The URL must use HTTPS, except for loopback HTTP
 such as `http://127.0.0.1:8080` during local development.
 
+### Local fork exception
+
+This local fork additionally permits **only** `http://64.181.225.158:8080` for its bundled sub2api provider. This is intentionally narrow: no other public HTTP host is accepted. That server receives the bearer API key over plaintext HTTP, so use this exception only if you accept that risk.
+
 For one group, paste its key into the fallback API key field or configure environment variables:
 
 ```bash

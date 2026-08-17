@@ -145,8 +145,12 @@ struct ConfigValidationTests {
     }
 
     @Test
-    func `sub2api accepts HTTPS and loopback HTTP base URLs`() {
-        for host in ["https://sub2api.example.com", "http://127.0.0.1:8080"] {
+    func `sub2api accepts HTTPS loopback and the local trusted HTTP base URL`() {
+        for host in [
+            "https://sub2api.example.com",
+            "http://127.0.0.1:8080",
+            "http://64.181.225.158:8080",
+        ] {
             var config = CodexBarConfig.makeDefault()
             config.setProviderConfig(ProviderConfig(
                 id: .sub2api,
@@ -165,6 +169,7 @@ struct ConfigValidationTests {
     func `sub2api rejects unsafe base URLs`() {
         let invalidHosts = [
             "http://sub2api.example.com",
+            "http://64.181.225.158:8081",
             "https://user:pass@sub2api.example.com",
             "https://sub2api.example.com?token=secret",
             "https://sub2api.example.com#fragment",

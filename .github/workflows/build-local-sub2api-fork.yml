@@ -1,0 +1,37 @@
+name: Build local Sub2API HTTP fork
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install packaging dependency
+        run: brew install xcodegen
+
+      - name: Build ad-hoc signed arm64 app
+        env:
+          CODEXBAR_SIGNING: adhoc
+          ARCHES: arm64
+        run: ./Scripts/package_app.sh release
+
+      - name: Archive app
+        run: ditto -c -k --sequesterRsrc --keepParent CodexBar.app CodexBar-Sub2API-HTTP-arm64.zip
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CodexBar-Sub2API-HTTP-arm64
+          path: CodexBar-Sub2API-HTTP-arm64.zip
+          if-no-files-found: error
+          retention-days: 14

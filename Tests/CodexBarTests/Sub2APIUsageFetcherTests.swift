@@ -284,13 +284,19 @@ struct Sub2APIUsageFetcherTests {
     }
 
     @Test
-    func `settings allow HTTPS and loopback HTTP only`() {
+    func `settings allow HTTPS loopback and the single trusted public HTTP origin`() {
         #expect(Sub2APISettingsReader.baseURL(environment: [
             Sub2APISettingsReader.baseURLEnvironmentKey: "https://api.example.com",
         ]) != nil)
         #expect(Sub2APISettingsReader.baseURL(environment: [
             Sub2APISettingsReader.baseURLEnvironmentKey: "http://127.0.0.1:8080",
         ]) != nil)
+        #expect(Sub2APISettingsReader.baseURL(environment: [
+            Sub2APISettingsReader.baseURLEnvironmentKey: "http://64.181.225.158:8080",
+        ]) != nil)
+        #expect(Sub2APISettingsReader.baseURL(environment: [
+            Sub2APISettingsReader.baseURLEnvironmentKey: "http://64.181.225.158:8081",
+        ]) == nil)
         #expect(Sub2APISettingsReader.baseURL(environment: [
             Sub2APISettingsReader.baseURLEnvironmentKey: "http://api.example.com",
         ]) == nil)
