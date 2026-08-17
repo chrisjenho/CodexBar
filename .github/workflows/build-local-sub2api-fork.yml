@@ -2,6 +2,9 @@ name: Build local Sub2API HTTP fork
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - local/sub2api-http-override
 
 permissions:
   contents: read
